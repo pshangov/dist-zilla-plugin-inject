@@ -19,7 +19,6 @@ has 'remote_server' => (
 has 'config_file' => (
 	is        => 'ro',
 	isa       => 'Str',
-	predicate => 'has_config_file',
 );
 
 has 'author_id' => (
@@ -34,7 +33,7 @@ has 'module' => (
 	lazy    => 1,
 	default => sub {
 		my $name = $_[0]->zilla->name;
-		$name =~ tr/\-/::/;
+		$name =~ s/\-/\:\:/g;
 		return $name;
 	},
 );
@@ -93,7 +92,9 @@ sub release {
 	try 
 	{
 		$i->add(%add_options);
+		$self->log("Added " . $self->module . " to repository");
 		$i->inject;
+		$self->log("Injected " . $self->module . " into CPAN::Mini mirror");
 	} 
 	catch 
 	{

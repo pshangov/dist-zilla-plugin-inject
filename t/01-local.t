@@ -6,6 +6,12 @@ use warnings;
 use Dist::Zilla::Tester ();
 use Path::Class         ();
 use Directory::Scratch  ();
+use Class::Load         ();
+
+use Test::More;
+
+Class::Load::try_load_class('CPAN::Mini::Inject')
+	or plan skip_all => 'CPAN::Mini::Inject required to run these tests';
 
 my $tmp = Directory::Scratch->new( DIR => '.' );
 
@@ -41,4 +47,14 @@ my $tzil = Dist::Zilla::Tester->from_config(
 
 my $plugin = $tzil->plugin_named('Inject');
 
+ok( !$plugin->is_remote, 'is_remote' );
+is( $plugin->config_file, $path_to_mcpani_conf, 'config_file' );
+is( $plugin->author_id, 'EXAMPLE', 'author_id' );
+is( $plugin->module, 'Dist::Zilla::Plugin::Inject::Test', 'module' );
+isa_ok( $plugin->injector, 'CPAN::Mini::Inject', 'injector' );
+isa_ok( $plugin->injector->config, 'CPAN::Mini::Inject::Config', 'config' );
+is( $plugin->injector->config->get('local'), '/path/to/minicpan', 'local' );
+is( $plugin->injector->config->get('remote'), 'http://favourite.mirror.com/', 'remote' );
+is( $plugin->injector->config->get('repository'), '/path/to/repository', 'repository' );
 
+done_testing();
