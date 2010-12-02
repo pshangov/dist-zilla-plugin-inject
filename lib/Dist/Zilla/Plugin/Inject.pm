@@ -1,9 +1,9 @@
 package Dist::Zilla::Plugin::Inject;
 
+# ABSTRACT: Inject into a CPAN::Mini mirror
+
 use Class::Load qw(load_class);
 use Try::Tiny qw(try catch);
-use CPAN::Mini::Inject;
-use CPAN::Mini::Inject::Remote;
 use Moose;
 use Moose::Util::TypeConstraints;
 use File::Temp qw();
@@ -103,5 +103,49 @@ sub release {
 	};
 }
 
-
 1;
+
+=pod
+
+=head1 SYNOPSIS
+
+  # in your dist.ini
+  [Inject]
+  author_id = EXAMPLE
+
+  # injection is triggered at the release stage
+  dzil release
+
+=head1 DESCRIPTION
+
+C<Dist::Zilla::Plugin::Inject> is a release-stage plugin that will inject your distribution into a local or remote L<CPAN::Mini> mirror.
+
+=head1 CONFIGURATION
+
+=head2 Author ID
+
+The only mandatory setting that C<Dist::Zilla::Plugin::Inject> requires is the author id that will be used when injecting the module (C<author_id>).
+
+=head2 Injecting into a local repository
+
+C<Dist::Zilla::Plugin::Inject> uses L<CPAN::Mini::Inject> to inject your distribution into a local L<CPAN::Mini> mirror. Thus, you need to have L<CPAN::Mini::Inject> configured on your machine first. L<CPAN::Mini::Inject> looks for its configuration file in a number of predefined locations (see its docs for details), or you can specify an explicit location via the C<config_file> setting in your C<dist.ini>, e.g.:
+
+  [Inject]
+  author_id = EXAMPLE
+  config_file = /home/example/.mcpani
+
+=head2 Injecting into a remote repository
+
+If you supply a C<remote_server> setting in your C<dist.ini>, C<Dist::Zilla::Plugin::Inject> will try to inject your distribution into a remote mirror via L<CPAN::Mini::Inject::Remote>. A configured L<CPAN::Mini::Inject::Server> must respond to the address specified in C<remote_server>, e.g.:
+
+  [Inject]
+  author_id = EXAMPLE
+  remote_server = http://mcpani.example.com/
+
+=begin stopwords
+
+Shangov
+
+=end stopwords
+
+=cut
